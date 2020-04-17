@@ -75,7 +75,7 @@ class KejuCppProject:
 
     def _popd(self) -> bool:
         previous_dir = self.work_dir.pop()
-        print(previous_dir)
+        print("Current working dir: {}".format(previous_dir))
         os.chdir(previous_dir)
         return True
 
@@ -319,17 +319,39 @@ class KejuCppProject:
         locate the unit test executable, execute it and get the coverage rate
         :return: (True or false, True or false)
         '''
+        result = False
         build_folder = os.path.join(self.test_project, self.build_folder)
         os.makedirs(build_folder, exist_ok=True)
         if not self._pushd(build_folder):
             print("ERROR: fail to change working directory to {}".format(build_folder))
             return False
-        if not _run_shell_command(self.coverage_cmd):
+        temp = tempfile.NamedTemporaryFile(delete=False, mode="w+")
+        coverage_output_file_name = temp.name
+        temp.close()
+        coverage_output_file = open(coverage_output_file_name, "w+")
+        if not _run_shell_command(self.coverage_cmd, out_file = coverage_output_file):
             print("ERROR: unit test faild.")
             self._popd()
             return False
+        coverage_output_file.close()
+        with io.open(coverage_output_file_name, 'r', encoding='utf8') as coverage_parse:
+            for line in coverage_parse.readlines():
+                if line.startswith("TOTAL"):
+                    line = line.rstrip()
+                    words = line.split(' ')
+                    print(words)
+                    for w in words:
+                        if w.endswith("%"):
+                            w = w[0:len(w)-1]
+                            coverage_rate = int(w)
+                            if coverage_rate >= self.min_line_rate:
+                                result = True
+                            else:
+                                print("Coverage rate is low: {}, the expected rate is >= {}".format(coverage_rate, self.min_line_rate))
+
+        os.unlink(coverage_output_file_name)
         self._popd()
-        return True
+        return result
 
 
 if __name__ == "__main__":
