@@ -326,12 +326,16 @@ class KejuCppProject:
         :return: (True or false, True or false)
         '''
         result = False
-        os.unlink(self.unittest_xml_file)
+
         build_folder = os.path.join(self.test_project, self.build_folder)
         os.makedirs(build_folder, exist_ok=True)
         if not self._pushd(build_folder):
             print("ERROR: fail to change working directory to {}".format(build_folder))
             return False
+        
+        if os.path.isfile(self.unittest_xml_file):
+            os.unlink(self.unittest_xml_file)
+
         temp = tempfile.NamedTemporaryFile(delete=False, mode="w+")
         coverage_output_file_name = temp.name
         temp.close()
