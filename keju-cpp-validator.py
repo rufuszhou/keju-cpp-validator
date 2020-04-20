@@ -3,12 +3,12 @@
 # 需求描述：
 # 1. 输入：
 #           keju考生提交的c++工程目录的路径
-#           对应的skeleton工程的路径
+#           对应的seed工程的路径
 # 2. 操作：
 #    1）检查比对两个工程，确认考生提交的是一个有效工程
 #    2）编译考生的C++工程，给出编译过程及编译结果 （check style的检查应该是编译的一部分）
 #    3）运行unit test，得到单元测试的通过率及代码覆盖率
-#    4) 读取skeleton/src下的CMakefile，得到其可执行文件，提供额外的输入作为测试，并比对其输出
+#    4) 读取seed/src下的CMakefile，得到其可执行文件，提供额外的输入作为测试，并比对其输出
 
 import sys
 import os
@@ -38,12 +38,12 @@ def _run_shell_command(cmd, out_file=sys.stdout, err_file=sys.stderr):
 
 class KejuCppProject:
 
-    def __init__(self, test_project, skeleton_project):
-        # the test project and its skeleton project
+    def __init__(self, test_project, seed_project):
+        # the test project and its seed project
         self.test_project = test_project
-        self.skeleton_project = skeleton_project
+        self.seed_project = seed_project
         print(self.test_project)
-        print(self.skeleton_project)
+        print(self.seed_project)
         self.build_folder = None
         self.executable = None
         self.unittest_cmd = None
@@ -160,8 +160,8 @@ class KejuCppProject:
         if not os.path.isdir(self.test_project):
             print("ERROR: %s is not a valid folder!" % self.test_project)
             return False
-        if not os.path.isdir(self.skeleton_project):
-            print("ERROR: %s is not a valid folder!" % self.skeleton_project)
+        if not os.path.isdir(self.seed_project):
+            print("ERROR: %s is not a valid folder!" % self.seed_project)
             return False
         return True
 
@@ -178,24 +178,24 @@ class KejuCppProject:
         for (l, sub_dcmp) in dcmp.subdirs.items():
             self._collect_folders_differences(sub_dcmp, level+"/"+l, diff_files, left_only, right_only)
 
-    def validate_project_against_skeleton(self) -> bool:
+    def validate_project_against_seed(self) -> bool:
         '''
-        compare the project folder structure with the skeleton project
+        compare the project folder structure with the seed project
         to see if they are the same.
         :return: True or False
         '''
         diff_files = []
         test_only = []
-        skeleton_only = []
-        dir_cmp = filecmp.dircmp(self.test_project, self.skeleton_project)
+        seed_only = []
+        dir_cmp = filecmp.dircmp(self.test_project, self.seed_project)
         # print(dir_cmp.report_full_closure())
-        self._collect_folders_differences(dir_cmp, ".", diff_files, test_only, skeleton_only)
+        self._collect_folders_differences(dir_cmp, ".", diff_files, test_only, seed_only)
         for d in diff_files:
             if d in self.ignored_diff_files:
                 diff_files.remove(d)
-        for s in skeleton_only:
+        for s in seed_only:
             if s in self.ignored_missing_files:
-                skeleton_only.remove(s)
+                seed_only.remove(s)
 
         result = True
         print("INFO: These files are added: " + str(test_only))
@@ -205,9 +205,9 @@ class KejuCppProject:
                 if d in self.forbidden_diff_files:
                     print("ERROR: {} is forbidden to be changed.".format(d))
                     result = False
-        if len(skeleton_only) != 0:
-            print("WARNING: these files are deleted: " + str(skeleton_only))
-            for s in skeleton_only:
+        if len(seed_only) != 0:
+            print("WARNING: these files are deleted: " + str(seed_only))
+            for s in seed_only:
                 if s in self.forbidden_missing_files:
                     print("ERROR: {} is forbidden to be deleted.".format(s))
                     result = False
@@ -358,13 +358,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Validate the provided C++ project')
     parser.add_argument('-p', '--project', required=True, dest='project',
                         help='A C++ project to check')
-    parser.add_argument('-s', '--skeleton', required=True, dest='skeleton',
-                        help='The skeleton project to compare')
+    parser.add_argument('-s', '--seed', required=True, dest='seed',
+                        help='The seed project to compare')
     parser.add_argument('-v', '--validation', required=True, dest="validation",
                         help='validation project to get data and configurations')
 
     args = parser.parse_args()
-    proj = KejuCppProject(args.project, args.skeleton)
+    proj = KejuCppProject(args.project, args.seed)
 
     print("0. Read validation configurations and data")
     if not proj.read_validation_configs(args.validation):
@@ -373,7 +373,7 @@ if __name__ == "__main__":
     if not proj.basic_check():
         exit(1)
     print("2. Check the project files...")
-    if not proj.validate_project_against_skeleton():
+    if not proj.validate_project_against_seed():
         exit(1)
     print("3. Build... ")
     if not proj.build():
