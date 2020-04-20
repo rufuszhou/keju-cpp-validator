@@ -57,6 +57,7 @@ class KejuCppProject:
         self.min_func_rate = None
         self.functional_input = None
         self.functional_output = None
+        self.unittest_xml_file = None
 
         self.work_dir = []
 
@@ -110,6 +111,11 @@ class KejuCppProject:
             self.build_folder = "./build/"
         else:
             self.build_folder = config["build_folder"]
+
+        if "unittest_xml_output" not in config:
+            self.unittest_xml_file = "./build/test_detail.xml"
+        else:
+            self.unittest_xml_file = config["unittest_xml_output"]
 
         if "unittest_cmd" not in config:
             self.unittest_cmd = "make test"
@@ -320,6 +326,7 @@ class KejuCppProject:
         :return: (True or false, True or false)
         '''
         result = False
+        os.unlink(self.unittest_xml_file)
         build_folder = os.path.join(self.test_project, self.build_folder)
         os.makedirs(build_folder, exist_ok=True)
         if not self._pushd(build_folder):
@@ -350,6 +357,12 @@ class KejuCppProject:
                                 print("Coverage rate is low: {}, the expected rate is >= {}".format(coverage_rate, self.min_line_rate))
 
         os.unlink(coverage_output_file_name)
+
+        if not os.path.isfile(self.unittest_xml_file):
+            print("ERROR: failed to find the unit test xml file.")
+            result = False
+        os.unlink(self.unittest_xml_file)
+
         self._popd()
         return result
 
