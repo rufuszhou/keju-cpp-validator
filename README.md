@@ -4,7 +4,7 @@
 验证keju中的cpp项目  
 
 **执行**  
-···
+```
 % ./keju-cpp-validator.py -h
 usage: keju-cpp-validator.py [-h] -p PROJECT -s SEED -v VALIDATION
 
@@ -18,7 +18,7 @@ optional arguments:
                         The seed project to compare
   -v VALIDATION, --validation VALIDATION
                         validation project to get data and configurations
-···
+```
 
 **功能及步骤**  
 
