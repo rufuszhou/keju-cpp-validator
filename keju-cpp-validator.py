@@ -204,19 +204,21 @@ class KejuCppProject:
                 seed_only.remove(s)
 
         result = True
-        print("INFO: These files are added: " + str(test_only))
+        print("INFO:[FILE_INTEGRITY_CHECK] These files are added: " + str(test_only))
         if len(diff_files) != 0:
             print("WARN: these files are not expected to be changed: " + str(diff_files))
             for d in diff_files:
                 if d in self.forbidden_diff_files:
-                    print("ERROR: {} is forbidden to be changed.".format(d))
+                    print("ERROR:[FILE_INTEGRITY_CHECK] {} is forbidden to be changed.".format(d))
                     result = False
         if len(seed_only) != 0:
             print("WARNING: these files are deleted: " + str(seed_only))
             for s in seed_only:
                 if s in self.forbidden_missing_files:
-                    print("ERROR: {} is forbidden to be deleted.".format(s))
+                    print("ERROR:[FILE_INTEGRITY_CHECK] {} is forbidden to be deleted.".format(s))
                     result = False
+        if result:
+            print("SUCCEEDED:[FILE_INTEGRITY_CHECK] PASS.")
         return result
 
     def build(self) -> bool:
@@ -231,17 +233,18 @@ class KejuCppProject:
             shutil.rmtree(build_folder)
         os.makedirs(build_folder)
         if not self._pushd(build_folder):
-            print("ERROR: fail to change working directory to {}".format(build_folder))
+            print("ERROR:[BUILD] fail to change working directory to {}".format(build_folder))
             return False
         if not _run_shell_command("cmake .."):
-            print("ERROR: generating Makefile faild.")
+            print("ERROR:[BUILD] generating Makefile faild.")
             self._popd()
             return False
         if not _run_shell_command("make"):
-            print("ERROR: build failed")
+            print("ERROR:[BUILD] build failed")
             self._popd()
             return False
         self._popd()
+        print("SUCCEEDED:[BUILD] PASS")
         return True
 
     def _get_application_path(self) -> str:
@@ -276,7 +279,7 @@ class KejuCppProject:
 
                 temp_output = io.open(current_output_file_name, "w", encoding='utf8')
                 if not _run_shell_command(cmd, out_file=temp_output):
-                    print("ERROR: failed to run {}".format(self.executable))
+                    print("ERROR:[EXTENDED_TEST] failed to run {}".format(self.executable))
                     temp_output.close()
                     return False
                 temp_output.close()
@@ -287,7 +290,7 @@ class KejuCppProject:
                 temp_input.close()
 
                 if gold_output_line != current_output_line:
-                    sys.stdout.write(str("ERROR: result of input ({}) is not correct.".format(line).encode('utf8'))+'\n')
+                    sys.stdout.write(str("ERROR:[EXTENDED_TEST] result of input ({}) is not correct.".format(line).encode('utf8'))+'\n')
                     failure = failure + 1
                 else:
                     sys.stdout.write(str("The result with input ({}) is correct.".format(line).encode('utf8'))+'\n')
@@ -300,6 +303,7 @@ class KejuCppProject:
             if failure != 0:
                 return False
             else:
+                print("SUCCEEDED:[EXTENDED_TEST] PASS")
                 return True
 
     def validate_unittest_result(self) -> bool:
@@ -311,13 +315,14 @@ class KejuCppProject:
         build_folder = os.path.join(self.test_project, self.build_folder)
         os.makedirs(build_folder, exist_ok=True)
         if not self._pushd(build_folder):
-            print("ERROR: fail to change working directory to {}".format(build_folder))
+            print("ERROR:[UNIT_TEST] fail to change working directory to {}".format(build_folder))
             return False
         if not _run_shell_command(self.unittest_cmd):
-            print("ERROR: unit test faild.")
+            print("ERROR:[UNIT_TEST] unit test faild.")
             self._popd()
             return False
         self._popd()
+        print("SUCCEED:[UNIT_TEST] PASS")
         return True
 
     def validate_unittest_coverage(self) -> bool:
@@ -330,7 +335,7 @@ class KejuCppProject:
         build_folder = os.path.join(self.test_project, self.build_folder)
         os.makedirs(build_folder, exist_ok=True)
         if not self._pushd(build_folder):
-            print("ERROR: fail to change working directory to {}".format(build_folder))
+            print("ERROR:[COVERAGE] fail to change working directory to {}".format(build_folder))
             return False
         
         if os.path.isfile(self.unittest_xml_file):
@@ -340,8 +345,8 @@ class KejuCppProject:
         coverage_output_file_name = temp.name
         temp.close()
         coverage_output_file = open(coverage_output_file_name, "w+")
-        if not _run_shell_command(self.coverage_cmd, out_file = coverage_output_file):
-            print("ERROR: unit test faild.")
+        if not _run_shell_command(self.coverage_cmd, out_file=coverage_output_file):
+            print("ERROR:[COVERAGE] unit test faild.")
             self._popd()
             return False
         coverage_output_file.close()
@@ -357,8 +362,9 @@ class KejuCppProject:
                             coverage_rate = int(w)
                             if coverage_rate >= self.min_line_rate:
                                 result = True
+                                print("ERROR:[COVERAGE] PASS")
                             else:
-                                print("Coverage rate is low: {}, the expected rate is >= {}".format(coverage_rate, self.min_line_rate))
+                                print("ERROR:[COVERAGE] Coverage rate is low: {}, the expected rate is >= {}".format(coverage_rate, self.min_line_rate))
 
         os.unlink(coverage_output_file_name)
 
