@@ -58,6 +58,7 @@ class KejuCppProject:
         self.functional_input = None
         self.functional_output = None
         self.unittest_xml_file = None
+        self.unittest_coverage_file = None
 
         self.work_dir = []
 
@@ -116,6 +117,11 @@ class KejuCppProject:
             self.unittest_xml_file = "./build/test_detail.xml"
         else:
             self.unittest_xml_file = config["unittest_xml_output"]
+
+        if "unittest_coverage_output" not in config:
+            self.unittest_coverage_file = "./build/test_coverage.xml"
+        else:
+            self.unittest_coverage_file = config["unittest_xml_output"]
 
         if "unittest_cmd" not in config:
             self.unittest_cmd = "make test"
@@ -318,7 +324,7 @@ class KejuCppProject:
             print("ERROR:[UNIT_TEST] fail to change working directory to {}".format(build_folder))
             return False
         if not _run_shell_command(self.unittest_cmd):
-            print("ERROR:[UNIT_TEST] unit test faild.")
+            print("ERROR:[UNIT_TEST] unit test failed.")
             self._popd()
             return False
         self._popd()
@@ -340,17 +346,16 @@ class KejuCppProject:
         
         if os.path.isfile(self.unittest_xml_file):
             os.unlink(self.unittest_xml_file)
+        if os.path.isfile(self.unittest_coverage_file):
+            os.unlink(self.unittest_coverage_file)
 
-        temp = tempfile.NamedTemporaryFile(delete=False, mode="w+")
-        coverage_output_file_name = temp.name
-        temp.close()
-        coverage_output_file = open(coverage_output_file_name, "w+")
+        coverage_output_file = open(self.unittest_coverage_file, "w+")
         if not _run_shell_command(self.coverage_cmd, out_file=coverage_output_file):
-            print("ERROR:[COVERAGE] unit test faild.")
+            print("ERROR:[COVERAGE] unit test failed.")
             self._popd()
             return False
         coverage_output_file.close()
-        with io.open(coverage_output_file_name, 'r', encoding='utf8') as coverage_parse:
+        with io.open(self.unittest_coverage_file, 'r', encoding='utf8') as coverage_parse:
             for line in coverage_parse.readlines():
                 if line.startswith("TOTAL"):
                     line = line.rstrip()
@@ -365,13 +370,6 @@ class KejuCppProject:
                                 print("ERROR:[COVERAGE] PASS")
                             else:
                                 print("ERROR:[COVERAGE] Coverage rate is low: {}, the expected rate is >= {}".format(coverage_rate, self.min_line_rate))
-
-        os.unlink(coverage_output_file_name)
-
-        if not os.path.isfile(self.unittest_xml_file):
-            print("ERROR: failed to find the unit test xml file.")
-            result = False
-        os.unlink(self.unittest_xml_file)
 
         self._popd()
         return result
