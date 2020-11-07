@@ -114,14 +114,14 @@ class KejuCppProject:
             self.build_folder = config["build_folder"]
 
         if "unittest_xml_output" not in config:
-            self.unittest_xml_file = "./build/test_detail.xml"
+            self.unittest_xml_file = "test_detail.xml"
         else:
             self.unittest_xml_file = config["unittest_xml_output"]
 
         if "unittest_coverage_output" not in config:
-            self.unittest_coverage_file = "./build/test_coverage.xml"
+            self.unittest_coverage_file = "test_coverage.xml"
         else:
-            self.unittest_coverage_file = config["unittest_xml_output"]
+            self.unittest_coverage_file = config["unittest_coverage_output"]
 
         if "unittest_cmd" not in config:
             self.unittest_cmd = "make test"
