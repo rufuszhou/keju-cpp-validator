@@ -367,7 +367,7 @@ class KejuCppProject:
                             coverage_rate = int(w)
                             if coverage_rate >= self.min_line_rate:
                                 result = True
-                                print("ERROR:[COVERAGE] PASS")
+                                print("SUCCEED:[COVERAGE] PASS")
                             else:
                                 print("ERROR:[COVERAGE] Coverage rate is low: {}, the expected rate is >= {}".format(coverage_rate, self.min_line_rate))
 
