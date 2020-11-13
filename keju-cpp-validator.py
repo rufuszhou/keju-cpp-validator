@@ -379,13 +379,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Validate the provided C++ project')
     parser.add_argument('-p', '--project', required=True, dest='project',
                         help='A C++ project to check')
-    parser.add_argument('-s', '--seed', required=True, dest='seed',
-                        help='The seed project to compare')
+    parser.add_argument('-q', '--question', required=True, dest='question',
+                        help='The cpp question\'s name')
     parser.add_argument('-v', '--validation', required=True, dest="validation",
                         help='validation project to get data and configurations')
 
     args = parser.parse_args()
-    proj = KejuCppProject(args.project, args.seed)
+    seed = ''
+    if args.question.lower() == 'taxi':
+        seed = 'https://github.com/rufuszhou/tdd-taxi-cpp-seed.git'
+    else
+        seed = ''
+    proj = KejuCppProject(args.project, seed)
 
     print("0. Read validation configurations and data")
     if not proj.read_validation_configs(args.validation):
