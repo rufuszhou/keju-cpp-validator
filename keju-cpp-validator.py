@@ -387,7 +387,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     seed = ''
     if args.question.lower() == 'taxi':
-        seed = 'https://github.com/rufuszhou/tdd-taxi-cpp-seed.git'
+        seed = 'tdd-taxi-cpp-seed'
     else
         seed = ''
     proj = KejuCppProject(args.project, seed)
