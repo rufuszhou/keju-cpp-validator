@@ -3,7 +3,7 @@
 **功能**  
 验证keju中的cpp项目  
 
-**注意**
+**注意**  
 因为存在submodule, 克隆这个repo的时候请加上“--recurse-submodules”选项，如下
 ```
 git clone --recurse-submodules https://github.com/rufuszhou/keju-cpp-validator.git
