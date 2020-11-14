@@ -1,0 +1,12 @@
+[submodule "tdd-taxi-cpp-validation"]
+	path = tdd-taxi-cpp-validation
+	url = https://github.com/rufuszhou/tdd-taxi-cpp-validation.git
+[submodule "tdd-fizzbuzz-cpp-validation"]
+	path = tdd-fizzbuzz-cpp-validation
+	url = https://github.com/rufuszhou/tdd-fizzbuzz-cpp-validation.git
+[submodule "tdd-taxi-cpp-seed"]
+	path = tdd-taxi-cpp-seed
+	url = https://github.com/rufuszhou/tdd-taxi-cpp-seed.git
+[submodule "tdd-fizzbuzz-cpp-seed"]
+	path = tdd-fizzbuzz-cpp-seed
+	url = https://github.com/rufuszhou/tdd-fizzbuzz-cpp-seed.git

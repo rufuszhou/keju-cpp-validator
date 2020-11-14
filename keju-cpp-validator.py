@@ -383,19 +383,41 @@ if __name__ == "__main__":
                         help='A C++ project to check')
     parser.add_argument('-q', '--question', required=True, dest='question',
                         help='The cpp question\'s name')
-    parser.add_argument('-v', '--validation', required=True, dest="validation",
-                        help='validation project to get data and configurations')
-
     args = parser.parse_args()
-    seed = ''
-    if args.question.lower() == 'taxi':
-        seed = 'tdd-taxi-cpp-seed'
-    else:
-        seed = ''
-    proj = KejuCppProject(args.project, seed)
+
+    # To support new project (seed + validation), add them below.
+    seed_projects = {
+            "taxi" : "tdd-taxi-cpp-seed", 
+            "fizzbuzz" : "tdd-fizzbuzz-cpp-seed"
+            }
+    validation_projects = {
+            "taxi" : "tdd-taxi-cpp-validation", 
+            "fizzbuzz" : "tdd-fizzbuzz-cpp-validation"
+            }
+
+    question = args.question.lower()
+    if not question in seed_projects:
+        print("ERROR: Unsupported question: {}".format(question))
+        exit(1)
+    if not question in validation_projects:
+        print("ERROR: Unsupported question: {}".format(question))
+        exit(1)
+
+    where_am_i=os.path.dirname(sys.argv[0]) 
+    seed_project_path=os.path.join(where_am_i, seed_projects[question])
+    validation_project_path=os.path.join(where_am_i, validation_projects[question])
+
+    if not os.path.exists(seed_project_path):
+        print("ERROR: Failed to get seed project for question: {}:{}".format(question, seed_project_path))
+        exit(1)
+    if not os.path.exists(validation_project_path):
+        print("ERROR: Failed to get validation project for question: {}:{}".format(question, validation_project_path))
+        exit(1)
+
+    proj = KejuCppProject(args.project, seed_project_path)
 
     print("0. Read validation configurations and data")
-    if not proj.read_validation_configs(args.validation):
+    if not proj.read_validation_configs(validation_project_path):
         exit(1)
     print("1. Basic Check... ")
     if not proj.basic_check():
