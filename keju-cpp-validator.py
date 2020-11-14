@@ -388,7 +388,7 @@ if __name__ == "__main__":
     seed = ''
     if args.question.lower() == 'taxi':
         seed = 'tdd-taxi-cpp-seed'
-    else
+    else:
         seed = ''
     proj = KejuCppProject(args.project, seed)
 
