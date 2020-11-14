@@ -162,6 +162,7 @@ class KejuCppProject:
             self.min_func_rate = 100
         else:
             self.min_func_rate = config["coverage_min_func_rate"]
+        print("SUCCEEDED:[LOAD_VALIDATION_CONFIG] PASS")
         return True
 
     def basic_check(self) -> bool:
@@ -175,6 +176,7 @@ class KejuCppProject:
         if not os.path.isdir(self.seed_project):
             print("ERROR: %s is not a valid folder!" % self.seed_project)
             return False
+        print("SUCCEEDED:[BASIC_CHECK] PASS.")
         return True
 
     def _collect_folders_differences(self, dcmp, level, diff_files, left_only, right_only):
